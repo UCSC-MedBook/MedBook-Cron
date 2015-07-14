@@ -88,32 +88,59 @@ db.Clinical_Info.find().forEach(function(doc) {
 			name:{$regex:/kinase_viper/}
 		}).sort({'val':-1}).limit(3).forEach(function(sig) {
 					print(sig.name, sig.id, sig.val);
+	
 	db.patient_reports.update({
-		"patient_label":doc.Patient_ID,
-		"samples.sample_label" : doc.Sample_ID,
-	}, { $addToSet:{ "samples.$.signature_types": 
-			{
-				"type":"kinase", 
-				"description":"Kinase Activation",
-				"signature_algorithms":[ {
-						"signature_algorithm_label":sig.name,
+			"patient_label":doc.Patient_ID,
+			"samples.sample_label" : doc.Sample_ID,
+		}, {
+			$addToSet:{
+				"samples.$.signature_types": {
+					"type":"kinase", 
+					"description":"Kinase Activation",
+					"signature_algorithms":[ {
+						"signature_algorithm_label":"kinase_viper_v1",
 						"signature_algorithm_report_id": "reportidforsignaturealgorithm",
 						"job_id": "jobidforsignaturealgorithm",
 						"version_number":"1",
 						"value_type":"kinase_viper", 
-						"individual_signatures":[{
-								"signature_label":"PLK1_kinase_viper",
-								"patient_values_in_cohort":[
-															{patient_label:'DTB-001', value:1, patient_id: 'idforfirstone'},
-															{patient_label:'DTB-003', value:3, patient_id: 'idforfirstone'}, 
-															{patient_label:'DTB-069', value:30, patient_id: 'idforfirstone'}, 
-															{patient_label:'DTB-011', value:20, patient_id: 'idforfirstone'}, 
-															{patient_label:'DTB-110', value:21, patient_id: 'idforfirstone'}
-								]
-						}
-				]}],
+						"individual_signatures":[]
+					} ],
+					"other": []
+				}
 			}
-		}
+        }
+	);
+
+	// The complexity of generating signatures objects here is very
+	// high. I'm going to focus on making the signatureReport page
+	// (and data) before coming back to this.
+
+	db.patient_reports.update({
+			"patient_label":doc.Patient_ID,
+			"samples.sample_label" : doc.Sample_ID,
+		}, {
+			$addToSet:{
+				"samples.0.signature_types.0.other": {
+					"hello": true
+				}
+			}
 		});
-})
+ // db.patient_reports.update({
+ // 		"patient_label":doc.Patient_ID,
+ // 		"samples.sample_label" : doc.Sample_ID,
+ //                "samples.signature_types.signature_algorithms.signature_algorithm_label": "kinase_viper_v1"
+ // 	}, { $addToSet:{ "samples.$.signature_types.$.signature_algorithms.$.individual_signatures": 
+ // 			{
+ //                                                "signature_label":sig.name,
+ // 						"patient_values_in_cohort":[
+ // 															{patient_label:'DTB-001', value:1, patient_id: 'idforfirstone'},
+ // 															{patient_label:'DTB-003', value:3, patient_id: 'idforfirstone'}, 
+ // 															{patient_label:'DTB-069', value:30, patient_id: 'idforfirstone'}, 
+ // 															{patient_label:'DTB-011', value:20, patient_id: 'idforfirstone'}, 
+ // 															{patient_label:'DTB-110', value:21, patient_id: 'idforfirstone'}
+ // 				]}
+ // 			}
+ // 		}
+ // 	);
+	})
 })
