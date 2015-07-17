@@ -1,0 +1,21 @@
+<head>
+  <title>webapp</title>
+</head>
+
+<body>
+  <h1>Jobs list</h1>
+
+  {{> jobsList}}
+</body>
+
+<template name="jobsList">
+  {{#each getJobs}}
+    {{> job this}}
+  {{/each}}
+</template>
+
+<template name="job">
+  <div class="component-box">
+    {{../name}}: {{../result}}
+  </div>
+</template>
