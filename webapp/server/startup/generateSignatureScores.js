@@ -15,6 +15,7 @@ Meteor.startup(function () {
   Signatures.find().forEach(function (currentSignature){
     var newSignatureScore = {
       "signature_id": currentSignature._id,
+      "signature_label": currentSignature.signature_label,
       "upper_threshold_value": 2,
       "lower_threshold_value": 2,
       "patient_values": [],

@@ -68,14 +68,45 @@ Meteor.startup(function () {
       for (var sampleIndex = 0;
           sampleIndex < primaryDocument.samples.length;
           sampleIndex++) {
-        primarySample = primaryDocument.samples[sampleIndex];
-        newReport.samples[sampleIndex] = {
-          "sample_label": primarySample["sample_label"],
-          "site_of_biopsy": primarySample["site_of_biopsy"],
+        currentPrimarySample = primaryDocument.samples[sampleIndex];
+        currentSampleReport = newReport.samples[sampleIndex];
+
+        currentSampleReport = {
+          "sample_label": currentPrimarySample["sample_label"],
+          "site_of_biopsy": currentPrimarySample["site_of_biopsy"],
+          "signature_types": [{
+            "type": "Hardcoded Signature Type",
+            "description": "Hardcoded signature description is here.",
+            "signature_algorithms": [{
+              "signature_algorithm_report_id": "hardcodedAlgorithmReportId",
+              "signature_algorithm_label": "hardcoded algorithm report label",
+              "value_type": "hardcoded_kinase_viper",
+              "job_id": "hardcodedJobId",
+              "version_number": "hardcodedVersionNumber1",
+              "individual_signatures": [],
+            }],
+          }],
         };
+
+        // make list of signature scores which this patient is in
+        var thisPatientSignatures = [];
+        SignatureScores.find({
+            "patient_values.$.patient_id": primaryDocument._id // does this work?
+          })
+          .forEach(function (currentSignatureScore) {
+            thisPatientSignatures.push(currentSignatureScore);
+            console.log("found " + primaryDocument.patient_label
+                          + " in " + currentSignatureScore.signature_label);
+        });
+
+        // sort the list
+
+        var whereToPutTheSignatures = currentSampleReport
+            .signature_types[0]
+            .signature_algorithms[0]
+            .individual_signatures;
+        // put the first 5 from that list into
       }
-
-
 
       PatientReports.insert(newReport, insertCallback);
     });
