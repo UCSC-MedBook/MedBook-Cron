@@ -25,7 +25,8 @@ Meteor.startup(function () {
         "lower_than_threshold": "red",
         "higher_than_threshold": "blue",
         "between_thresholds": "lightgrey",
-        "current_sample": "green",
+        "highlighted_samples": "green",
+        "current_sample": "yellow",
       },
       "lowest_value_for_algorithm": -5,
       "highest_value_for_algorithm": 5,
@@ -34,7 +35,7 @@ Meteor.startup(function () {
     signature_scores_old.find({ "name": currentSignature.description })
         .forEach(function (currentOldScore) {
       newSignatureScore.patient_values.push({
-        "sample_id": Helpers.getPatientId(currentOldScore.id),
+        "patient_id": Helpers.getPatientIdFromSampleLabel(currentOldScore.id),
         "sample_label": currentOldScore.id,
         "value": currentOldScore.val,
       })

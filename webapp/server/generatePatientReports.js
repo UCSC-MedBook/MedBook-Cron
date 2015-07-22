@@ -4,9 +4,9 @@ Meteor.startup(function () {
     // remove all old patient reports (for now)
     PatientReports.remove({});
 
-    var dateToDays = function (patient, date) {
-      return date - patient.on_study_date;
-    }
+    // var dateToDays = function (patient, date) {
+    //   return date - patient.on_study_date;
+    // }
 
     var insertCallback = function (error, result) {
       if (error) {
@@ -16,11 +16,8 @@ Meteor.startup(function () {
       //console.log("result: " + result);
     }
 
-    //
-    // make the first level of the patient report
-    //
-
     console.log("generating patient reports");
+
     Patients.find().forEach(function (primaryDocument) {
       console.log("creating report for " + primaryDocument.patient_label);
 
@@ -91,19 +88,20 @@ Meteor.startup(function () {
 
         // make list of signature scores which this patient is in
         var thisPatientSignatures = [];
-        SignatureScores.find({ // TODO: I don't know if this find is right
+        SignatureScores.find({
               patient_values: {
                 $elemMatch: {
                   sample_label: currentSampleReport[sampleIndex].sample_label
                 }
               }
             }).forEach(function (currentSignatureScore) {
+          currentSignatureScore.current_sample_label = currentSampleReport[sampleIndex].sample_label;
           thisPatientSignatures.push(currentSignatureScore);
           console.log("found " + currentSampleReport[sampleIndex].sample_label
                             + " in signature " + currentSignatureScore.signature_label);
         });
 
-        // TODO: sort the list
+        // TODO: sort the list, take top 5
 
         currentSampleReport[sampleIndex]
             .signature_types[0]
@@ -113,59 +111,6 @@ Meteor.startup(function () {
 
       PatientReports.insert(newReport, insertCallback);
     });
-
-    //
-    // set patientReport.psa_levels
-    //
-
-    // console.log("set patientReport.psa_levels");
-    // BloodLabs.find().forEach(function (current) {
-    //   if (current.psa_level) { // only add if it has the info
-    //     PatientReports.find({"_id": current.patient_id}) // find the right patient
-    //       .update({
-    //         $addToSet: {
-    //           psa_levels: {
-    //             "day": dateToDays(this, current.visit_date),
-    //             "value": current.psa_level
-    //           }
-    //         }
-    //       }, insertCallback);
-    //   }
-    // });
-
-    //
-    // set patientReport.treatments
-    //
-
-    // console.log("set patientReport.treatments");
-    // Treatments.find().forEach(function (current) {
-    //
-    //   var newTreatment;
-    //
-    //   var directCopyList = [
-    //     "start_day",
-    //     // if null --> still on treatment
-    //     "end_day",
-    //     "description",
-    //     "drug_name",
-    //     "reason_for_stop",
-    //     "psa_response",
-    //     "bone_response",
-    //     "category",
-    //   ];
-    //
-    //   for (var i = 0; i < directCopyList.length; i++) {
-    //     var attribute = directCopyList[i];
-    //     newTreatment[attribute] = current[attribute];
-    //   }
-    //
-    //   PatientReports.find({"_id": current.patient_id})
-    //     .update({
-    //       $addToSet: {
-    //         "treatments": newTreatment
-    //       }
-    //     }, insertCallback);
-    // });
   }
 
   generatePatientReports();
