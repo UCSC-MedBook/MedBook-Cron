@@ -16,18 +16,22 @@ Meteor.startup(function () {
     var newSignatureScore = {
       "signature_id": currentSignature._id,
       "signature_label": currentSignature.signature_label,
-      "upper_threshold_value": 2,
-      "lower_threshold_value": 2,
+      "description": currentSignature.description,
+      "upper_threshold_value": 1.5,
+      "lower_threshold_value": -2,
       "patient_values": [],
       "vertical_axis_text": "Hardcoded text",
       "colors": {
         "lower_than_threshold": "red",
         "higher_than_threshold": "blue",
-        "between_thresholds": "pink",
-      }
+        "between_thresholds": "lightgrey",
+        "current_sample": "green",
+      },
+      "lowest_value_for_algorithm": -5,
+      "highest_value_for_algorithm": 5,
     };
 
-    signature_scores_old.find({ "name": currentSignature.signature_label })
+    signature_scores_old.find({ "name": currentSignature.description })
         .forEach(function (currentOldScore) {
       newSignatureScore.patient_values.push({
         "sample_id": Helpers.getPatientId(currentOldScore.id),

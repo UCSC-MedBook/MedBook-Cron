@@ -99,8 +99,8 @@ Meteor.startup(function () {
               }
             }).forEach(function (currentSignatureScore) {
           thisPatientSignatures.push(currentSignatureScore);
-          // console.log("found " + primaryDocument.patient_label
-          //                   + " in " + currentSignatureScore.signature_label);
+          console.log("found " + currentSampleReport[sampleIndex].sample_label
+                            + " in signature " + currentSignatureScore.signature_label);
         });
 
         // TODO: sort the list

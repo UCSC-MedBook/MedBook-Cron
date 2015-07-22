@@ -22,8 +22,9 @@ Meteor.startup(function () {
   for (var i = 0; i < signaturesToGenerate.length; i++) {
     var currentName = signaturesToGenerate[i];
     Signatures.insert({
+        "signature_label": currentName.toLowerCase().replace(/ /g,"_"),
         // replace spaces with underscores
-        "signature_label": currentName,//.replace(/ /g,"_"),
+        "description": currentName,
       }, insertCallback);
   }
 
