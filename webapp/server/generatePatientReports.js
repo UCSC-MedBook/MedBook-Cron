@@ -20,7 +20,7 @@ Meteor.startup(function () {
     // make the first level of the patient report
     //
 
-    console.log("make the first level of the patient report");
+    console.log("generating patient reports");
     Patients.find().forEach(function (primaryDocument) {
 
       var newReport = {

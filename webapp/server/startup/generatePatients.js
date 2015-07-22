@@ -13,10 +13,6 @@ Meteor.startup(function () {
     //console.log("result: " + result);
   }
 
-
-  var Demographics = new Meteor.Collection("Demographics");
-  var SU2C_Biopsy_V3 = new Meteor.Collection("SU2C_Biopsy_V3");
-
   Demographics.find().forEach(function (currentDocument) {
 
     var fieldMap = [
@@ -63,6 +59,8 @@ Meteor.startup(function () {
       insertCallback
     );
   });
+
+  console.log("done reading from SU2C_Biopsy_V3");
 
   console.log("done generating patients");
 });

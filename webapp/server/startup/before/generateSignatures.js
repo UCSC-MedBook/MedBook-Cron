@@ -16,16 +16,15 @@ Meteor.startup(function () {
     "Small Cell vs Non Small Cell_v1",
     "Adeno vs nonAdeno_v5",
     "ABL1_kinase_viper_v4",
-    "AKT1_kinase_viper_v4",
-    "ATM_kinase_viper_v4",
-    "ATR_kinase_viper_v4",
-    "AURKA_kinase_viper_v4",
-    "AURKB_kinase_viper_v4",
-    "CAMK2A_kinase_viper_v4",
-    "CDK1_kinase_viper_v4",
+    // add all distinct in signature_scores
   ];
 
-  
+  for (var i = 0; i < signaturesToGenerate.length; i++) {
+    var currentName = signaturesToGenerate[i];
+    Signatures.insert({
+        "signature_label": currentName
+      }, insertCallback);
+  }
 
   console.log("done generating signatures")
 });
