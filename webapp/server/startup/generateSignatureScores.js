@@ -30,8 +30,8 @@ Meteor.startup(function () {
     signature_scores_old.find({ "name": currentSignature.signature_label })
         .forEach(function (currentOldScore) {
       newSignatureScore.patient_values.push({
-        "patient_id": Helpers.getPatientId(currentOldScore.id),
-        "patient_label": currentOldScore.id,
+        "sample_id": Helpers.getPatientId(currentOldScore.id),
+        "sample_label": currentOldScore.id,
         "value": currentOldScore.val,
       })
     });

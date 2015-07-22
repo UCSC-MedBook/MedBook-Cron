@@ -22,6 +22,7 @@ Meteor.startup(function () {
 
     console.log("generating patient reports");
     Patients.find().forEach(function (primaryDocument) {
+      console.log("creating report for " + primaryDocument.patient_label);
 
       var newReport = {
         // things not on the directCopyList
@@ -69,9 +70,9 @@ Meteor.startup(function () {
           sampleIndex < primaryDocument.samples.length;
           sampleIndex++) {
         currentPrimarySample = primaryDocument.samples[sampleIndex];
-        currentSampleReport = newReport.samples[sampleIndex];
+        currentSampleReport = newReport.samples;
 
-        currentSampleReport = {
+        currentSampleReport[sampleIndex] = {
           "sample_label": currentPrimarySample["sample_label"],
           "site_of_biopsy": currentPrimarySample["site_of_biopsy"],
           "signature_types": [{
@@ -90,22 +91,24 @@ Meteor.startup(function () {
 
         // make list of signature scores which this patient is in
         var thisPatientSignatures = [];
-        SignatureScores.find({
-            "patient_values.$.patient_id": primaryDocument._id // does this work?
-          })
-          .forEach(function (currentSignatureScore) {
-            thisPatientSignatures.push(currentSignatureScore);
-            console.log("found " + primaryDocument.patient_label
-                          + " in " + currentSignatureScore.signature_label);
+        SignatureScores.find({ // TODO: I don't know if this find is right
+              patient_values: {
+                $elemMatch: {
+                  sample_label: currentSampleReport[sampleIndex].sample_label
+                }
+              }
+            }).forEach(function (currentSignatureScore) {
+          thisPatientSignatures.push(currentSignatureScore);
+          // console.log("found " + primaryDocument.patient_label
+          //                   + " in " + currentSignatureScore.signature_label);
         });
 
-        // sort the list
+        // TODO: sort the list
 
-        var whereToPutTheSignatures = currentSampleReport
+        currentSampleReport[sampleIndex]
             .signature_types[0]
             .signature_algorithms[0]
-            .individual_signatures;
-        // put the first 5 from that list into
+            .individual_signatures = thisPatientSignatures;
       }
 
       PatientReports.insert(newReport, insertCallback);
