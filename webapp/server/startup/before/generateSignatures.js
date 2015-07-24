@@ -12,20 +12,25 @@ Meteor.startup(function () {
     //console.log("result: " + result);
   }
 
-  var signaturesToGenerate = [
-    "Small Cell vs Non Small Cell_v1",
-    "Adeno vs nonAdeno_v5",
-    "ABL1_kinase_viper_v4",
-    // add all distinct in signature_scores
-  ];
+  var signaturesToGenerate = _.uniq(signature_scores_old.find({}, {
+      sort: {"name": 1}, fields: {"name": true}
+    })
+    .fetch().map(function(x) {
+      return x.name;
+    }), true);//.slice(0, 20);
+
+  //console.log(signaturesToGenerate);
 
   for (var i = 0; i < signaturesToGenerate.length; i++) {
     var currentName = signaturesToGenerate[i];
-    Signatures.insert({
-        "signature_label": currentName.toLowerCase().replace(/ /g,"_"),
-        // replace spaces with underscores
-        "description": currentName,
-      }, insertCallback);
+    // there's an undefined in there because we're using _ to collect distinct values
+    if (currentName) {
+      Signatures.insert({
+          "signature_label": currentName.toLowerCase().replace(/ /g,"_"),
+          // replace spaces with underscores
+          "description": currentName,
+        }, insertCallback);
+    }
   }
 
   console.log("done generating signatures")

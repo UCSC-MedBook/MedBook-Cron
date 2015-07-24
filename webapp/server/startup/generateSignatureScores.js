@@ -13,32 +13,31 @@ Meteor.startup(function () {
   }
 
   Signatures.find().forEach(function (currentSignature){
+    console.log("generating signature scores for " + currentSignature.description);
     var newSignatureScore = {
       "signature_id": currentSignature._id,
       "signature_label": currentSignature.signature_label,
       "description": currentSignature.description,
       "upper_threshold_value": 1.5,
       "lower_threshold_value": -2,
-      "patient_values": [],
-      "vertical_axis_text": "Hardcoded text",
-      "colors": {
-        "lower_than_threshold": "red",
-        "higher_than_threshold": "blue",
-        "between_thresholds": "lightgrey",
-        "highlighted_samples": "green",
-        "current_sample": "yellow",
-      },
-      "lowest_value_for_algorithm": -5,
-      "highest_value_for_algorithm": 5,
+      "sample_values": [],
+      "vertical_axis_text": "Score",
+      // "colors": {
+      //   "lower_than_threshold": "blue",
+      //   "higher_than_threshold": "blue",
+      //   "between_thresholds": "lightgrey",
+      //   "highlighted_samples": "green",
+      //   "current_sample": "red",
+      // },
     };
 
     signature_scores_old.find({ "name": currentSignature.description })
         .forEach(function (currentOldScore) {
-      newSignatureScore.patient_values.push({
+      newSignatureScore.sample_values.push({
         "patient_id": Helpers.getPatientIdFromSampleLabel(currentOldScore.id),
         "sample_label": currentOldScore.id,
         "value": currentOldScore.val,
-      })
+      });
     });
 
     SignatureScores.insert(newSignatureScore, insertCallback);

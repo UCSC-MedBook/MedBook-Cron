@@ -12,7 +12,7 @@ Helpers.getPatientIdFromSampleLabel = function (sampleLabel) {
   if (patient) {
     return patient._id;
   } else {
-    console.log("patient_label lookup failed: " + sampleLabel);
+    //console.log("patient_label lookup failed: " + sampleLabel);
     return "noPatientIdFound";
   }
 }
