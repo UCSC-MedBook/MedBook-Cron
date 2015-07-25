@@ -48,8 +48,11 @@ Meteor.startup(function () {
       chartValues.push({
         "onClick": {
           "method": "patientReportGo",
-          "arguments": {},
-        }
+          "argument": {
+            "patient_id": newSignatureScore.sample_values[i].patient_id,
+            "sample_label": newSignatureScore.sample_values[i].sample_label,
+          },
+        },
         "value": newSignatureScore.sample_values[i].value,
       });
     }
