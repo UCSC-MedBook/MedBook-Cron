@@ -46,7 +46,10 @@ Meteor.startup(function () {
     var chartValues = [];
     for (var i = 0; i < newSignatureScore.sample_values.length; i++) {
       chartValues.push({
-        // "onClick": linkFunction,
+        "onClick": {
+          "method": "patientReportGo",
+          "arguments": {},
+        }
         "value": newSignatureScore.sample_values[i].value,
       });
     }
