@@ -1,3 +1,5 @@
+// is this ever used?
+
 Helpers = {};
 
 Helpers.getPatientIdFromSampleLabel = function (sampleLabel) {

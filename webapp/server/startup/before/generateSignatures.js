@@ -17,7 +17,7 @@ Meteor.startup(function () {
     })
     .fetch().map(function(x) {
       return x.name;
-    }), true);//.slice(0, 20);
+    }), true).slice(0, 20);
 
   //console.log(signaturesToGenerate);
 

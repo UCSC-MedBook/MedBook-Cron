@@ -7,6 +7,6 @@
 meteor-platform
 percolate:synced-cron
 aldeed:simple-schema
-aldeed:collection2
 medbook:primary-collections
 medbook:report-collections
+medbook:charts

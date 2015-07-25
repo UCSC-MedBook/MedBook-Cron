@@ -78,22 +78,22 @@ Meteor.startup(function () {
               "Sample_ID": currentPrimarySample["sample_label"]
             });
         if (histologyDoc) {
-          newReport.samples[sampleIndex]['histological_call'] = histologyDoc['Trichotomy'];
+          newReport.samples[sampleIndex]['trichotomy_call'] = histologyDoc['Trichotomy'];
         }
 
         // collect all the signatures the patient is part of
         var patientInSignatures = [];
-        SignatureScores.find({ // make list of signature scores which this patient is in
+        CohortSignatures.find({ // make list of signature scores which this patient is in
               sample_values: {
                 $elemMatch: {
                   sample_label: newReport.samples[sampleIndex].sample_label
                 }
               }
-            }).forEach(function (currentSignatureScore) {
-          currentSignatureScore.current_sample_label = newReport.samples[sampleIndex].sample_label;
-          patientInSignatures.push(currentSignatureScore);
+            }).forEach(function (currentCohortSignature) {
+          currentCohortSignature.current_sample_label = newReport.samples[sampleIndex].sample_label;
+          patientInSignatures.push(currentCohortSignature);
           // console.log("found " + newReport.samples[sampleIndex].sample_label
-          //                   + " in signature " + currentSignatureScore.signature_label);
+          //                   + " in signature " + currentCohortSignature.signature_label);
         });
 
         var getPatientValue = function (signature, sample_label) {
@@ -135,8 +135,8 @@ Meteor.startup(function () {
         tfSignatures = tfSignatures.sort(sortVipers).slice(0, maxSignaturesPerType);
         subtypeSignatures = subtypeSignatures.sort(sortVipers).slice(0, maxSignaturesPerType);
 
-        // set highest_value_for_algorithm
-        var setHighestLowestAlgorithmValues = function (signaturesList) {
+        // set highest/lowest_value_for_algorithm, add to signatures list
+        var addToSignatures = function (signaturesList, signature_type, signature_algorithm) {
           var highestValue = 0;
           var lowestValue = 0;
 
@@ -156,63 +156,32 @@ Meteor.startup(function () {
           for (var sigIndex = 0; sigIndex < signaturesList.length; sigIndex++) {
             signaturesList[sigIndex].lowest_value_for_algorithm = lowestValue;
             signaturesList[sigIndex].highest_value_for_algorithm = highestValue;
+            signaturesList[sigIndex].signature_type = signature_type;
+            signaturesList[sigIndex].signature_algorithm = signature_algorithm;
+
+            if (!newReport.samples[sampleIndex].cohort_signatures) { // initialize if not already
+              newReport.samples[sampleIndex].cohort_signatures = [];
+            }
+            newReport.samples[sampleIndex].cohort_signatures.push(signaturesList[sigIndex]);
           }
         };
 
-        if (kinaseSignatures.length > 0 || tfSignatures.length > 0 || subtypeSignatures.length > 0) {
+        addToSignatures(kinaseSignatures, "Kinase", "viper");
+        addToSignatures(tfSignatures, "Transcription factors", "viper");
+        addToSignatures(subtypeSignatures, "Subtype", "viper");
 
-          newReport.samples[sampleIndex].signature_types = [];
-
-          if (kinaseSignatures.length > 0) {
-            setHighestLowestAlgorithmValues(kinaseSignatures);
-            newReport.samples[sampleIndex].signature_types.push({
-              "signature_type_label": "Kinase",
-              "description": "This is the kinase type description.",
-              "signature_algorithms": [{
-                "signature_algorithm_report_id": "hardcodedAlgorithmReportId",
-                "signature_algorithm_label": "viper",
-                "value_type": "kinase_viper", // change
-                "individual_signatures": kinaseSignatures,
-                "version_number": "1.0",
-              }]
-            });
-          }
-
-          if (tfSignatures.length > 0) {
-            setHighestLowestAlgorithmValues(tfSignatures);
-            newReport.samples[sampleIndex].signature_types.push({
-              "signature_type_label": "Transcription Factors",
-              "description": "This is the tf type description.",
-              "signature_algorithms": [{
-                "signature_algorithm_report_id": "hardcodedAlgorithmReportId",
-                "signature_algorithm_label": "viper",
-                "value_type": "kinase_viper", // change
-                "individual_signatures": tfSignatures,
-                "version_number": "1.0",
-              }]
-            });
-          }
-
-          if (subtypeSignatures.length > 0) {
-            setHighestLowestAlgorithmValues(subtypeSignatures);
-            newReport.samples[sampleIndex].signature_types.push({
-              "signature_type_label": "Subtype",
-              "description": "This is the kinase type.",
-              "signature_algorithms": [{
-                "signature_algorithm_report_id": "hardcodedAlgorithmReportId",
-                "signature_algorithm_label": "viper",
-                "value_type": "kinase_viper", // change
-                "individual_signatures": subtypeSignatures,
-                "version_number": "1.0",
-              }]
-            });
-          }
-        } // end if (don't set .signature_types)
       } // sample loop (defines sampleIndex)
 
-      console.log("about to insert (length = " + JSON.stringify(newReport).length + ")");
+      // console.log(newReport.samples);
+
+      //console.log("about to insert " +  + "(length = " + JSON.stringify(newReport).length + ")");
 
       PatientReports.insert(newReport, insertCallback);
+      // var insertedId = PatientReports.insert(newReport, insertCallback);
+      //
+      // var afterInsert = PatientReports.findOne(insertedId);
+      // console.log(afterInsert);
+      // console.log("after insertion length: " + JSON.stringify(afterInsert).length);
     });
   }
 
