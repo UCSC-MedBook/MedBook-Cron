@@ -1,4 +1,4 @@
-Meteor.startup(function () {
+generateSignatures = function () {
   console.log("generate signatures");
 
   Signatures.remove({});
@@ -17,7 +17,7 @@ Meteor.startup(function () {
     })
     .fetch().map(function(x) {
       return x.name;
-    }), true).slice(0, 20);
+    }), true);//.slice(0, 20);
 
   //console.log(signaturesToGenerate);
 
@@ -34,4 +34,4 @@ Meteor.startup(function () {
   }
 
   console.log("done generating signatures")
-});
+};

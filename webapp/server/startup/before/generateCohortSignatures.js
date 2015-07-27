@@ -1,4 +1,4 @@
-Meteor.startup(function () {
+generateCohortSignatures = function () {
   console.log("generate cohort signatures");
 
   CohortSignatures.remove({});
@@ -23,10 +23,27 @@ Meteor.startup(function () {
       // chart_id set below
     };
 
+    var getPatientIdFromSampleLabel = function (sampleLabel) {
+      var patient = Patients.findOne({
+        "samples": {
+          $elemMatch: {
+            "sample_label": sampleLabel
+          }
+        }
+      });
+
+      if (patient) {
+        return patient._id;
+      } else {
+        //console.log("patient_label lookup failed: " + sampleLabel);
+        return "noPatientIdFound";
+      }
+    }
+
     signature_scores_old.find({ "name": currentSignature.description })
         .forEach(function (currentOldScore) {
       newSignatureScore.sample_values.push({
-        "patient_id": Helpers.getPatientIdFromSampleLabel(currentOldScore.id),
+        "patient_id": getPatientIdFromSampleLabel(currentOldScore.id),
         "sample_label": currentOldScore.id,
         "value": currentOldScore.val,
       });
@@ -53,6 +70,7 @@ Meteor.startup(function () {
             "sample_label": newSignatureScore.sample_values[i].sample_label,
           },
         },
+        "sample_label": newSignatureScore.sample_values[i].sample_label,
         "value": newSignatureScore.sample_values[i].value,
       });
     }
@@ -65,4 +83,4 @@ Meteor.startup(function () {
   });
 
   console.log("done generating signature scores");
-});
+};

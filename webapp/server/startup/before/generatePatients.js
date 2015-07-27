@@ -1,4 +1,4 @@
-Meteor.startup(function () {
+generatePatients = function () {
   console.log("generate patients");
 
   // clear out Patients
@@ -149,4 +149,4 @@ Meteor.startup(function () {
   // look through Blood_Labs_V2 (also run_variety.sh)
 
   console.log("done generating patients");
-});
+};
