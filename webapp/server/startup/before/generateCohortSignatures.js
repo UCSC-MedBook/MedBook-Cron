@@ -76,7 +76,7 @@ generateCohortSignatures = function () {
     }
     newChart.data.values = chartValues;
 
-    var newChartId = Charts.insert(newChart, {filter: false, autoConvert: false, validate: false}, insertCallback);
+    var newChartId = Charts.insert(newChart, insertCallback);
     newSignatureScore['chart_id'] = newChartId;
 
     CohortSignatures.insert(newSignatureScore, insertCallback);

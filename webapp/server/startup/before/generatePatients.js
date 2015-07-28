@@ -144,6 +144,9 @@ generatePatients = function () {
 
   console.log("done reading from SU2C_Subsequent_Treatment_V1");
 
+  Clinical_Info.find().forEach(function (currentDocument) {
+
+  });
 
 
   // look through Blood_Labs_V2 (also run_variety.sh)

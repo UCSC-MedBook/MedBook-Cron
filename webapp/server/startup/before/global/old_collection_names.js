@@ -6,3 +6,6 @@ SU2C_Subsequent_Treatment_V1 = new Meteor.Collection("SU2C_Subsequent_Treatment_
 
 Clinical_Info = new Meteor.Collection("Clinical_Info");
 Histology_Research = new Meteor.Collection("Histology_Research");
+
+genes = new Meteor.Collection("genes");
+superpathway = new Meteor.Collection("superpathway");
