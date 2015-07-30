@@ -25,24 +25,38 @@ generateGeneReports = function () {
   var totalCount = geneCursor.count();
   var reportsGenerated = 0;
 
-  geneCursor.forEach(function (currentDocument) {
+  geneCursor.forEach(function (currentGene) {
 
     // have to import superpathway first
     // replace all tabs with commas in the file (use emacs)
     // mongoimport -d MedBook -c superpathway --type csv --file UCSC_Superpathway_collapsed.csv --headerline
 
+    var interactions = superpathway_network.find({
+          $or: [
+            { "source": currentGene['gene'] },
+            { "target": currentGene['gene'] },
+          ]}
+        )
+        .fetch();
 
+    var allSources = _.pluck(interactions, 'source');
+    var allTargets = _.pluck(interactions, 'target');
+    var uniqueElements = _.union(allSources, allTargets);
+
+    var elements = superpathway_elements.find({
+          "name": { $in: uniqueElements }
+        })
+        .fetch();
 
     var newReport = {
       "created_at": new Date(),
-      "gene_label": currentDocument['gene'],
-      "status": currentDocument['status'],
-      "neighbors": superpathway.find({
-        $or: [
-          {"element1": currentDocument['gene']},
-          {"element2": currentDocument['gene']}
-        ]
-      }).fetch(),
+      "gene_label": currentGene['gene'],
+      "status": currentGene['status'],
+      "network": {
+        "name": "Superpathway 3.0 hardcoded",
+        "elements": elements,
+        "interactions": interactions,
+      }
     };
 
     GeneReports.insert(newReport, insertCallback);
