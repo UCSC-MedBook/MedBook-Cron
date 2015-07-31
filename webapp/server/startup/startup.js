@@ -4,9 +4,9 @@ Meteor.startup(function () {
   // generateSignatures();
   // generateCohortSignatures();
 
-  // generatePatientReports();
+  generatePatientReports();
 
-  generateGeneReports();
+  // generateGeneReports();
 
   console.log("done generating new data");
 

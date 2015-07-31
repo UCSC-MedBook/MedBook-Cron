@@ -23,13 +23,27 @@ generateSignatures = function () {
 
   for (var i = 0; i < signaturesToGenerate.length; i++) {
     var currentName = signaturesToGenerate[i];
-    // there's an undefined in there because we're using _ to collect distinct values
-    if (currentName) {
-      Signatures.insert({
-          "signature_label": currentName.toLowerCase().replace(/ /g,"_"),
-          // replace spaces with underscores
-          "description": currentName,
-        }, insertCallback);
+
+    var splitOnUnderscores = currentName.split("_");
+    //console.log("splitOnUnderscores: ", splitOnUnderscores);
+    if (currentName) { // there's an undefined in there (because _.js)
+      if (splitOnUnderscores.length === 4) { // "ABL1_kinase_viper_v4"
+        Signatures.insert({
+            "description": currentName,
+            "type": splitOnUnderscores[1],
+            "algorithm": splitOnUnderscores[2],
+            "label": splitOnUnderscores[0],
+            "version": parseInt(splitOnUnderscores[3].substring(1), 10),
+          }, insertCallback);
+      } else { // "Adeno vs nonAdeno_v5"
+        Signatures.insert({
+            "description": currentName,
+            "type": "subtype",
+            "algorithm": "viper",
+            "label": splitOnUnderscores[0],
+            "version": parseInt(splitOnUnderscores[1].substring(1), 10),
+          }, insertCallback);
+      }
     }
   }
 

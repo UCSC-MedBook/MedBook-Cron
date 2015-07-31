@@ -10,3 +10,4 @@ aldeed:simple-schema
 medbook:primary-collections
 medbook:report-collections
 medbook:charts
+erasaur:meteor-lodash

@@ -1,3 +1,5 @@
+_ = lodash; // for findIndex
+
 generatePatientReports = function () {
   // remove all old patient reports (for now)
   PatientReports.remove({});
@@ -16,7 +18,7 @@ generatePatientReports = function () {
 
   console.log("generating patient reports");
 
-  Patients.find().forEach(function (primaryDocument) {
+  Patients.find({"patient_label": "DTB-080"}, {sort: {patient_label: 1}}).forEach(function (primaryDocument) {
     console.log("creating report for " + primaryDocument.patient_label);
 
     var newReport = {
@@ -79,109 +81,63 @@ generatePatientReports = function () {
         newReport['samples'][sampleIndex]['trichotomy_call'] = histologyDoc['Trichotomy'];
       }
 
-      // collect all the signatures the patient is part of
-      var patientInSignatures = [];
-      CohortSignatures.find({ // make list of signature scores which this patient is in
-            sample_values: {
-              $elemMatch: {
-                sample_label: newReport['samples'][sampleIndex].sample_label
-              }
-            }
-          }).forEach(function (currentCohortSignature) {
-        currentCohortSignature.current_sample_label = newReport['samples'][sampleIndex].sample_label;
-        patientInSignatures.push(currentCohortSignature);
-        // console.log("found " + newReport['samples'][sampleIndex].sample_label
-        //                   + " in signature " + currentCohortSignature.signature_label);
-      });
-
-      var getPatientValue = function (signature, sample_label) {
-        // TODO: implement binary search
-        values = signature.sample_values;
-        for (var i = 0; i < values.length; i++) {
-          if (values[i]['sample_label'] == sample_label) {
-            return values[i]['value'];
-          }
-        }
-        console.log("ERROR: couldn't find patient in signature");
-        return 0;
-      }
-
-      var sortVipers = function (first, second) {
-        return Math.abs(getPatientValue(second, newReport['samples'][sampleIndex].sample_label))
-              - Math.abs(getPatientValue(first, newReport['samples'][sampleIndex].sample_label))
-      }
-
-      var kinaseSignatures = [];
-      var tfSignatures = [];
-      var subtypeSignatures = [];
-
-      for (var i = 0; i < patientInSignatures.length; i++) {
-        var currentSignature = patientInSignatures[i];
-        var currentName = currentSignature.signature_label;
-        if (currentName.indexOf("kinase") > -1) {
-          kinaseSignatures.push(currentSignature);
-        } else if (currentName.indexOf("tf") > -1) {
-          tfSignatures.push(currentSignature);
-        } else {
-          subtypeSignatures.push(currentSignature);
-        }
-      }
-
-      // sort and slice each type
-      var maxSignaturesPerType = 4; // subtract one
-      kinaseSignatures = kinaseSignatures.sort(sortVipers).slice(0, maxSignaturesPerType);
-      tfSignatures = tfSignatures.sort(sortVipers).slice(0, maxSignaturesPerType);
-      subtypeSignatures = subtypeSignatures.sort(sortVipers).slice(0, maxSignaturesPerType);
-
-      // set highest/lowest_value_for_algorithm, add to signatures list
-      var addToSignatures = function (signaturesList, signature_type, signature_algorithm) {
-        var highestValue = 0;
-        var lowestValue = 0;
-
-        for (var sigIndex = 0; sigIndex < signaturesList.length; sigIndex++) {
-          var sample_values = signaturesList[sigIndex].sample_values;
-          for (var i = 0; i < sample_values.length; i++) {
-            var current = sample_values[i].value;
-            if (current > highestValue) {
-              highestValue = current;
-            }
-            if (current < lowestValue) {
-              lowestValue = current;
-            }
-          }
-        }
-
-        for (var sigIndex = 0; sigIndex < signaturesList.length; sigIndex++) {
-          signaturesList[sigIndex].lowest_value_for_algorithm = lowestValue;
-          signaturesList[sigIndex].highest_value_for_algorithm = highestValue;
-          signaturesList[sigIndex].signature_type = signature_type;
-          signaturesList[sigIndex].signature_algorithm = signature_algorithm;
-
-          if (!newReport['samples'][sampleIndex].cohort_signatures) { // initialize if not already
-            newReport['samples'][sampleIndex].cohort_signatures = [];
-          }
-          var cohortSignatureToAdd = signaturesList[sigIndex];
-          cohortSignatureToAdd['current_sample_label'] = newReport['samples'][sampleIndex]['sample_label'];
-          newReport['samples'][sampleIndex].cohort_signatures.push(cohortSignatureToAdd);
-        }
-      };
-
-      addToSignatures(kinaseSignatures, "Kinase", "viper");
-      addToSignatures(tfSignatures, "Transcription factors", "viper");
-      addToSignatures(subtypeSignatures, "Subtype", "viper");
-
     } // sample loop (defines sampleIndex)
 
-    // console.log(newReport['samples']);
+    var patientSamples = _.pluck(newReport['samples'], "sample_label");
 
-    //console.log("about to insert " +  + "(length = " + JSON.stringify(newReport).length + ")");
+    // collect all the signatures the patient is part of
+    var patientInSignatures = CohortSignatures.find({
+          sample_values: {
+            $elemMatch: {
+              sample_label: {
+                $in: patientSamples
+              }
+            }
+          }
+        }).fetch();
 
+
+
+    function findPercentThrough(signature, sample_label) {
+      var toRet =  _.findIndex(signature['sample_values'], function (current) {
+        return current.sample_label == sample_label;
+      }) / signature['sample_values'].length;
+
+      // console.log(sample_label, "percent through " + signature.label + ": ", toRet);
+
+      return toRet;
+    }
+
+    function compareHighestSample(first, second) {
+      // var firstHighestLabel = _.max(patientSamples, function(sample_label){
+      //   return findPercentThrough(first, sample_label);
+      // });
+      // console.log("firstHighestLabel: ", firstHighestLabel);
+      // var secondHighestLabel = _.max(patientSamples, function(sample_label){
+      //   return findPercentThrough(second, sample_label);
+      // });
+      // console.log("secondHighestLabel: ", secondHighestLabel);
+      var toRet = findPercentThrough(second, patientSamples[0])
+          - findPercentThrough(first, patientSamples[0]);
+
+      return toRet;
+    }
+
+    function topSignaturesWithType(type, numberToKeep) {
+      return _.where(patientInSignatures, {"type": type})
+          .sort(compareHighestSample).slice(0, numberToKeep);
+    }
+
+    var numberToKeep = 10;
+    var kinaseSignatures = topSignaturesWithType("kinase", numberToKeep)
+    var tfSignatures = topSignaturesWithType("tf", numberToKeep)
+    var subtypeSignatures = topSignaturesWithType("subtype", numberToKeep)
+
+    newReport['cohort_signature_ids'] = _.pluck(
+        kinaseSignatures.concat(tfSignatures).concat(subtypeSignatures), "_id");
+
+    // do the insertion
     PatientReports.insert(newReport, insertCallback);
-    // var insertedId = PatientReports.insert(newReport, insertCallback);
-    //
-    // var afterInsert = PatientReports.findOne(insertedId);
-    // console.log(afterInsert);
-    // console.log("after insertion length: " + JSON.stringify(afterInsert).length);
   });
 
   console.log("done generating patient reports");
