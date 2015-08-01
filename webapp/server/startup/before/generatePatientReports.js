@@ -18,7 +18,7 @@ generatePatientReports = function () {
 
   console.log("generating patient reports");
 
-  Patients.find({"patient_label": "DTB-080"}, {sort: {patient_label: 1}}).forEach(function (primaryDocument) {
+  Patients.find(/*{"patient_label": "DTB-080"},*/{}, {sort: {patient_label: 1}}).forEach(function (primaryDocument) {
     console.log("creating report for " + primaryDocument.patient_label);
 
     var newReport = {

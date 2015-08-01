@@ -20,53 +20,64 @@ generateGeneReports = function () {
   // actually do stuff
   //
 
-  var geneCursor = genes.find({"gene": { $regex: /MAPK/ }});
+  function addWithCursor(cursor) {
+    var totalCount = cursor.count();
+    var reportsGenerated = 0;
 
-  var totalCount = geneCursor.count();
-  var reportsGenerated = 0;
+    cursor.forEach(function (currentGene) {
 
-  geneCursor.forEach(function (currentGene) {
+      // have to import superpathway first
+      // replace all tabs with commas in the file (use emacs)
+      // mongoimport -d MedBook -c superpathway --type csv --file UCSC_Superpathway_collapsed.csv --headerline
 
-    // have to import superpathway first
-    // replace all tabs with commas in the file (use emacs)
-    // mongoimport -d MedBook -c superpathway --type csv --file UCSC_Superpathway_collapsed.csv --headerline
+      var interactions = superpathway_network.find({
+            $or: [
+              { "source": currentGene['gene'] },
+              { "target": currentGene['gene'] },
+            ]}
+          )
+          .fetch();
 
-    var interactions = superpathway_network.find({
-          $or: [
-            { "source": currentGene['gene'] },
-            { "target": currentGene['gene'] },
-          ]}
-        )
-        .fetch();
+      var allSources = _.pluck(interactions, 'source');
+      var allTargets = _.pluck(interactions, 'target');
+      var uniqueElements = _.union(allSources, allTargets);
 
-    var allSources = _.pluck(interactions, 'source');
-    var allTargets = _.pluck(interactions, 'target');
-    var uniqueElements = _.union(allSources, allTargets);
+      var elements = superpathway_elements.find({
+            "name": { $in: uniqueElements }
+          })
+          .fetch();
 
-    var elements = superpathway_elements.find({
-          "name": { $in: uniqueElements }
-        })
-        .fetch();
+      var newReport = {
+        "created_at": new Date(),
+        "gene_label": currentGene['gene'],
+        "status": currentGene['status'],
+        "network": {
+          "name": "Superpathway 3.0 hardcoded",
+          "elements": elements,
+          "interactions": interactions,
+        }
+      };
 
-    var newReport = {
-      "created_at": new Date(),
-      "gene_label": currentGene['gene'],
-      "status": currentGene['status'],
-      "network": {
-        "name": "Superpathway 3.0 hardcoded",
-        "elements": elements,
-        "interactions": interactions,
+      GeneReports.insert(newReport, insertCallback);
+
+      reportsGenerated++;
+      if (reportsGenerated % 10 == 0) {
+        console.log("generated " + reportsGenerated + " of " + totalCount
+            + " (" + newReport['gene_label'] + ")");
       }
-    };
+    });
+  }
 
-    GeneReports.insert(newReport, insertCallback);
+  var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-    reportsGenerated++;
-    if (reportsGenerated % 10 == 0) {
-      console.log("generated " + reportsGenerated + " of " + totalCount
-          + " (" + newReport['gene_label'] + ")");
-    }
-  });
+  for (var i = 0; i < alphabet.length; i++) {
+    addWithCursor(genes.find({"gene": {
+          $regex: new RegExp("^" + alphabet[i]) 
+        }}, {
+          sort: { "gene": 1 }
+        }));
+  }
+
 
   console.log("done generating gene reports");
 };
