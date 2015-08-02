@@ -61,7 +61,7 @@ generateGeneReports = function () {
       GeneReports.insert(newReport, insertCallback);
 
       reportsGenerated++;
-      if (reportsGenerated % 10 == 0) {
+      if (reportsGenerated % 50 == 0) {
         console.log("generated " + reportsGenerated + " of " + totalCount
             + " (" + newReport['gene_label'] + ")");
       }
@@ -71,11 +71,14 @@ generateGeneReports = function () {
   var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
   for (var i = 0; i < alphabet.length; i++) {
-    addWithCursor(genes.find({"gene": {
-          $regex: new RegExp("^" + alphabet[i]) 
-        }}, {
-          sort: { "gene": 1 }
-        }));
+    addWithCursor(genes.find({
+        $and: [
+          { "gene": { $regex: new RegExp("^" + alphabet[i]) } },
+          { "gene": { $regex: /.*[^n]$/ } },
+        ],
+      }, {
+        sort: { "gene": 1 }
+      }));
   }
 
 
