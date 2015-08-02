@@ -44,7 +44,7 @@ generateCohortSignatures = function () {
       newSignatureScore.sample_values.push({
         "patient_label": getPatientLabelFromSampleLabel(currentOldScore.id),
         "sample_label": currentOldScore.id,
-        "value": currentOldScore.val,
+        "value": currentOldScore.val || currentOldScore.value,
       });
     });
 

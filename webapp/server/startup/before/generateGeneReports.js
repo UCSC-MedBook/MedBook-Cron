@@ -62,7 +62,7 @@ generateGeneReports = function () {
 
       reportsGenerated++;
       if (reportsGenerated % 50 == 0) {
-        console.log("generated " + reportsGenerated + " of " + totalCount
+        console.log("generated gene report " + reportsGenerated + " of " + totalCount
             + " (" + newReport['gene_label'] + ")");
       }
     });
@@ -75,7 +75,7 @@ generateGeneReports = function () {
         //"gene": { $regex: /MAPK/ }
         $and: [
           { "gene": { $regex: new RegExp("^" + alphabet[i]) } },
-          { "gene": { $regex: /.*[^n]$/ } },
+          { "gene": { $regex: /.*[^n]$/ } }, // don't get ~withdrawn
         ],
       }, {
         sort: { "gene": 1 }

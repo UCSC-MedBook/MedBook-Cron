@@ -39,11 +39,18 @@ generateSignatures = function () {
               "algorithm": splitOnUnderscores[2],
               "version": parseInt(splitOnUnderscores[3].substring(1), 10),
             })
-      } else { // "Adeno vs nonAdeno_v5"
+      } else if (splitOnUnderscores.length === 2) { // "Adeno vs nonAdeno_v5"
         newSignature = _.extend(newSignature, {
-              "type": "subtype",
-              "algorithm": "viper",
+              "type": "other",
+              "algorithm": "lda",
               "version": parseInt(splitOnUnderscores[1].substring(1), 10),
+            });
+      } else { // UCSC_AR_v5
+        newSignature = _.extend(newSignature, {
+              "type": "other",
+              "algorithm": "lda",
+              "label": splitOnUnderscores[0] + "_" + splitOnUnderscores[1],
+              "version": parseInt(splitOnUnderscores[2].substring(1), 10),
             });
       }
 
@@ -51,6 +58,8 @@ generateSignatures = function () {
       if (genes.find({"gene": newSignature.label}).count() > 0) {
         newSignature.gene_label = newSignature.label;
       }
+
+      console.log("about to insert: ", newSignature.description);
 
       Signatures.insert(newSignature, insertCallback);
     }
