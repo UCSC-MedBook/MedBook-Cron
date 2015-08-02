@@ -21,9 +21,10 @@ generateCohortSignatures = function () {
       "label": currentSignature.label,
       "description": currentSignature.description,
       "sample_values": [],
+      "gene_label": currentSignature.gene_label,
     };
 
-    var getPatientIdFromSampleLabel = function (sampleLabel) {
+    var getPatientLabelFromSampleLabel = function (sampleLabel) {
       var patient = Patients.findOne({
         "samples": {
           $elemMatch: {
@@ -33,17 +34,15 @@ generateCohortSignatures = function () {
       });
 
       if (patient) {
-        return patient._id;
-      } else {
-        //console.log("patient_label lookup failed: " + sampleLabel);
-        return "noPatientIdFound";
+        return patient.patient_label;
       }
+      return undefined;
     }
 
     signature_scores_old.find({ "name": currentSignature.description })
         .forEach(function (currentOldScore) {
       newSignatureScore.sample_values.push({
-        "patient_id": getPatientIdFromSampleLabel(currentOldScore.id),
+        "patient_label": getPatientLabelFromSampleLabel(currentOldScore.id),
         "sample_label": currentOldScore.id,
         "value": currentOldScore.val,
       });

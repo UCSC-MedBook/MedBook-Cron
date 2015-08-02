@@ -3,10 +3,10 @@ Meteor.startup(function () {
   // generatePatients();
   // generateSignatures();
   // generateCohortSignatures();
+  //
+  generatePatientReports();
 
-  // generatePatientReports();
-
-  generateGeneReports();
+  // generateGeneReports();
 
   console.log("done generating new data");
 

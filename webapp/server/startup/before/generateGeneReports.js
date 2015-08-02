@@ -72,6 +72,7 @@ generateGeneReports = function () {
 
   for (var i = 0; i < alphabet.length; i++) {
     addWithCursor(genes.find({
+        //"gene": { $regex: /MAPK/ }
         $and: [
           { "gene": { $regex: new RegExp("^" + alphabet[i]) } },
           { "gene": { $regex: /.*[^n]$/ } },
