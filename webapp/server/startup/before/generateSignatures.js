@@ -59,8 +59,6 @@ generateSignatures = function () {
         newSignature.gene_label = newSignature.label;
       }
 
-      console.log("about to insert: ", newSignature.description);
-
       Signatures.insert(newSignature, insertCallback);
     }
   }

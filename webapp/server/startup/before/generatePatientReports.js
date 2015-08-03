@@ -54,6 +54,8 @@ generatePatientReports = function () {
       "baseline_psa",
       "psa_nadir",
       "psa_nadir_days",
+
+      "treatments",
     ];
 
     for (var i = 0; i < directCopyList.length; i++) {
@@ -73,12 +75,26 @@ generatePatientReports = function () {
         "site_of_biopsy": currentPrimarySample["site_of_biopsy"],
       };
 
+      var newSampleReport = newReport['samples'][sampleIndex];
+
+      // kind of last minute hacked together.
+      clinicalDocument = Clinical_Info.findOne(
+            {"Sample_ID": currentPrimarySample['sample_label']}
+          );
+      if (clinicalDocument) {
+        newSampleReport['abiraterone'] = clinicalDocument['Abiraterone'];
+        newSampleReport['enzalutamide'] = clinicalDocument['Enzalutamide'];
+        newSampleReport['subsequent_treatments'] =
+            clinicalDocument['subsequent_txs'];
+        newSampleReport['prior_treatments'] = clinicalDocument['prior_txs'];
+      }
+
       var histologyDoc = Histology_Research
           .findOne({
             "Sample_ID": currentPrimarySample["sample_label"]
           });
       if (histologyDoc) {
-        newReport['samples'][sampleIndex]['trichotomy_call'] = histologyDoc['Trichotomy'];
+        newSampleReport['trichotomy_call'] = histologyDoc['Trichotomy'];
       }
 
     } // sample loop (defines sampleIndex)
@@ -96,8 +112,6 @@ generatePatientReports = function () {
           }
         }).fetch();
 
-
-
     function findPercentThrough(signature, sample_label) {
       var toRet =  _.findIndex(signature['sample_values'], function (current) {
         return current.sample_label == sample_label;
@@ -109,16 +123,10 @@ generatePatientReports = function () {
     }
 
     function compareHighestSample(first, second) {
-      // var firstHighestLabel = _.max(patientSamples, function(sample_label){
-      //   return findPercentThrough(first, sample_label);
-      // });
-      // console.log("firstHighestLabel: ", firstHighestLabel);
-      // var secondHighestLabel = _.max(patientSamples, function(sample_label){
-      //   return findPercentThrough(second, sample_label);
-      // });
-      // console.log("secondHighestLabel: ", secondHighestLabel);
-      var toRet = findPercentThrough(second, patientSamples[0])
-          - findPercentThrough(first, patientSamples[0]);
+      var sampleToSortBy = patientSamples[1] || patientSamples[0];
+
+      var toRet = findPercentThrough(second, sampleToSortBy)
+          - findPercentThrough(first, sampleToSortBy);
 
       return toRet;
     }
@@ -131,7 +139,7 @@ generatePatientReports = function () {
     var numberToKeep = 10;
     var kinaseSignatures = topSignaturesWithType("kinase", numberToKeep)
     var tfSignatures = topSignaturesWithType("tf", numberToKeep)
-    var subtypeSignatures = topSignaturesWithType("subtype", numberToKeep)
+    var subtypeSignatures = topSignaturesWithType("other", numberToKeep)
 
     newReport['cohort_signature_ids'] = _.pluck(
         kinaseSignatures.concat(tfSignatures).concat(subtypeSignatures), "_id");
