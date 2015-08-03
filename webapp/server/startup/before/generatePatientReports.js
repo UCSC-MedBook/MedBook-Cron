@@ -99,51 +99,6 @@ generatePatientReports = function () {
 
     } // sample loop (defines sampleIndex)
 
-    var patientSamples = _.pluck(newReport['samples'], "sample_label");
-
-    // collect all the signatures the patient is part of
-    var patientInSignatures = CohortSignatures.find({
-          sample_values: {
-            $elemMatch: {
-              sample_label: {
-                $in: patientSamples
-              }
-            }
-          }
-        }).fetch();
-
-    function findPercentThrough(signature, sample_label) {
-      var toRet =  _.findIndex(signature['sample_values'], function (current) {
-        return current.sample_label == sample_label;
-      }) / signature['sample_values'].length;
-
-      // console.log(sample_label, "percent through " + signature.label + ": ", toRet);
-
-      return toRet;
-    }
-
-    function compareHighestSample(first, second) {
-      var sampleToSortBy = patientSamples[1] || patientSamples[0];
-
-      var toRet = findPercentThrough(second, sampleToSortBy)
-          - findPercentThrough(first, sampleToSortBy);
-
-      return toRet;
-    }
-
-    function topSignaturesWithType(type, numberToKeep) {
-      return _.where(patientInSignatures, {"type": type})
-          .sort(compareHighestSample).slice(0, numberToKeep);
-    }
-
-    var numberToKeep = 10;
-    var kinaseSignatures = topSignaturesWithType("kinase", numberToKeep)
-    var tfSignatures = topSignaturesWithType("tf", numberToKeep)
-    var subtypeSignatures = topSignaturesWithType("other", numberToKeep)
-
-    newReport['cohort_signature_ids'] = _.pluck(
-        kinaseSignatures.concat(tfSignatures).concat(subtypeSignatures), "_id");
-
     // do the insertion
     PatientReports.insert(newReport, insertCallback);
   });
