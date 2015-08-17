@@ -14,11 +14,11 @@ generatePatientReports = function () {
       console.log(error);
     }
     //console.log("result: " + result);
-  }
+  };
 
   console.log("generating patient reports");
 
-  Patients.find(/*{"patient_label": "DTB-080"},*/{}, {sort: {patient_label: 1}}).forEach(function (primaryDocument) {
+  Patients.find(/*{"patient_label": "DTB-080"}*/{}, {sort: {patient_label: 1}}).forEach(function (primaryDocument) {
     console.log("creating report for " + primaryDocument.patient_label);
 
     var newReport = {
@@ -26,7 +26,7 @@ generatePatientReports = function () {
       "created_at": new Date(),
       "patient_id": primaryDocument._id,
       "is_on_study": !primaryDocument.hasOwnProperty("off_study_date"),
-    }
+    };
 
     var directCopyList = [ // newReport["thingy"]: primaryDocument["thingy"]
       "patient_label",
@@ -64,37 +64,37 @@ generatePatientReports = function () {
     }
 
     // set samples
-    newReport['samples'] = [];
+    newReport.samples = [];
     for (var sampleIndex = 0;
         sampleIndex < primaryDocument.samples.length;
         sampleIndex++) {
       currentPrimarySample = primaryDocument.samples[sampleIndex];
 
-      newReport['samples'][sampleIndex] = {
-        "sample_label": currentPrimarySample["sample_label"],
-        "site_of_biopsy": currentPrimarySample["site_of_biopsy"],
+      newReport.samples[sampleIndex] = {
+        "sample_label": currentPrimarySample.sample_label,
+        "site_of_biopsy": currentPrimarySample.site_of_biopsy,
       };
 
-      var newSampleReport = newReport['samples'][sampleIndex];
+      var newSampleReport = newReport.samples[sampleIndex];
 
       // kind of last minute hacked together.
       clinicalDocument = Clinical_Info.findOne(
-            {"Sample_ID": currentPrimarySample['sample_label']}
+            {"Sample_ID": currentPrimarySample.sample_label}
           );
       if (clinicalDocument) {
-        newSampleReport['abiraterone'] = clinicalDocument['Abiraterone'];
-        newSampleReport['enzalutamide'] = clinicalDocument['Enzalutamide'];
-        newSampleReport['subsequent_treatments'] =
-            clinicalDocument['subsequent_txs'];
-        newSampleReport['prior_treatments'] = clinicalDocument['prior_txs'];
+        newSampleReport.abiraterone = clinicalDocument.Abiraterone;
+        newSampleReport.enzalutamide = clinicalDocument.Enzalutamide;
+        newSampleReport.subsequent_treatments =
+            clinicalDocument.subsequent_txs;
+        newSampleReport.prior_treatments = clinicalDocument.prior_txs;
       }
 
       var histologyDoc = Histology_Research
           .findOne({
-            "Sample_ID": currentPrimarySample["sample_label"]
+            "Sample_ID": currentPrimarySample.sample_label
           });
       if (histologyDoc) {
-        newSampleReport['trichotomy_call'] = histologyDoc['Trichotomy'];
+        newSampleReport.trichotomy_call = histologyDoc.Trichotomy;
       }
 
     } // sample loop (defines sampleIndex)
@@ -104,4 +104,4 @@ generatePatientReports = function () {
   });
 
   console.log("done generating patient reports");
-}
+};
