@@ -8,3 +8,4 @@ Clinical_Info = new Meteor.Collection("Clinical_Info");
 Histology_Research = new Meteor.Collection("Histology_Research");
 
 genes = new Meteor.Collection("genes");
+Clinical_Evidence_Summary = new Meteor.Collection("ClinicalEvidenceSummaries");
