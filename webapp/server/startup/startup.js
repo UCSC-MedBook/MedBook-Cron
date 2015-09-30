@@ -1,12 +1,12 @@
 Meteor.startup(function () {
   // // interlinked: uncomment and comment together
-  // generatePatients();
-  // generateSignatures();
-  // generateCohortSignatures();
+  generatePatients();
+  generateSignatures();
+  generateCohortSignatures();
 
   generatePatientReports();
 
-  // generateGeneReports();
+  generateGeneReports();
 
   console.log("done generating new data");
 

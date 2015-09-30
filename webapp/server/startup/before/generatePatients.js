@@ -62,9 +62,9 @@ generatePatients = function () {
   // so that day_calculator can look up for dates
   Demographics.find().forEach(function (currentDocument) {
     Patients.update(
-      {"patient_label": currentDocumentPatient_ID},
+      {"patient_label": currentDocument.Patient_ID},
       { $set: {
-        "off_study_date": day_calculator(currentDocumentOff_Study_Date, currentDocument),
+        "off_study_date": day_calculator(currentDocument.Off_Study_Date, currentDocument),
       } },
       insertCallback
     );
