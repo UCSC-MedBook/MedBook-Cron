@@ -51,7 +51,7 @@ generateCohortSignatures = function () {
           });
         });
 
-        newSignatureScore.sample_values = newSignatureScore.samples
+        newSignatureScore.samples = newSignatureScore.samples
             .sort(function (first, second) {
           return first.value - second.value;
         });
