@@ -96,6 +96,33 @@ generatePatientReports = function () {
       if (histologyDoc) {
         newSampleReport.trichotomy_call = histologyDoc.Trichotomy;
       }
+			var mutationDocList = Mutations.find({
+				sample_label: currentPrimarySample.sample_label
+			}).forEach(function (mutation) {
+				console.log("lookup ", mutation.gene_label, mutation.protein_change, 
+					mutation.functional_class, mutation.effect_impact);
+					if (mutation.protein_change) {
+						var variantDocList = Clinical_Evidence_Summary.find({
+							"variant": mutation.protein_change,
+							"gene": mutation.gene_label
+							
+						}).forEach(function(match) {
+							console.log("match", match.drugs, match.clinical_significance, match.disease);
+							if (newSampleReport.drugs === undefined) {
+								newSampleReport.drugs = [];
+							}
+							newSampleReport.drugs.push({'drug':match.drugs, 
+							'variant': mutation.protein_change,
+							'gene_label': match.gene,
+							'clinical_significance': match.clinical_significance, 
+							'disease':match.disease});
+							
+							
+						})
+						
+					}
+			});
+			
 
     } // sample loop (defines sampleIndex)
 

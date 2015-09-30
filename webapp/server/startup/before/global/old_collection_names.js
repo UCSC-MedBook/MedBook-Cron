@@ -10,3 +10,4 @@ Histology_Research = new Meteor.Collection("Histology_Research");
 genes = new Meteor.Collection("genes");
 //uperpathway_network = new Meteor.Collection("superpathway_network");
 //superpathway_elements = new Meteor.Collection("superpathway_elements");
+Clinical_Evidence_Summary = new Meteor.Collection("ClinicalEvidenceSummaries");
