@@ -13,21 +13,20 @@ generatePatients = function () {
       console.log("ERROR");
       console.log(error.invalidKeys);
     }
-    //console.log("result: " + result);
-  }
+  };
 
   var mapFields = function (destination, source, fieldMap) {
     for (var i = 0; i < fieldMap.length; i++) {
       destination[fieldMap[i][0]] = source[fieldMap[i][1]];
     }
-  }
+  };
 
   var day_calculator = function (date, currentDocument) {
-    var patient_label = currentDocument['Patient_ID'];
+    var patient_label = currentDocument.Patient_ID;
     if (date) {
       var patient = Patients.findOne({"patient_label": patient_label});
       if (!patient) {
-        console.log("Patient_ID not found in currentDocument ==> what")
+        console.log("Patient_ID not found in currentDocument ==> what");
         console.log(currentDocument);
         console.log("patient_label: " + patient_label);
       }
@@ -35,7 +34,7 @@ generatePatients = function () {
     } else {
       return null;
     }
-  }
+  };
 
   //
   // actually do stuff
@@ -63,9 +62,9 @@ generatePatients = function () {
   // so that day_calculator can look up for dates
   Demographics.find().forEach(function (currentDocument) {
     Patients.update(
-      {"patient_label": currentDocument["Patient_ID"]},
+      {"patient_label": currentDocumentPatient_ID},
       { $set: {
-        "off_study_date": day_calculator(currentDocument['Off_Study_Date'], currentDocument),
+        "off_study_date": day_calculator(currentDocumentOff_Study_Date, currentDocument),
       } },
       insertCallback
     );
@@ -75,14 +74,14 @@ generatePatients = function () {
 
   SU2C_Biopsy_V3.find().forEach(function (currentDocument) {
     var newSample = {
-      "procedure_day": day_calculator(currentDocument['Date_of_Procedure'], currentDocument),
+      "procedure_day": day_calculator(currentDocument.Date_of_Procedure, currentDocument),
     };
     mapFields(newSample, currentDocument, [
       ["sample_label", "Sample_ID"],
       ["site_of_biopsy", "Site"],
     ]);
     Patients.update(
-      {"patient_label": currentDocument["Patient_ID"]},
+      {"patient_label": currentDocument.Patient_ID},
       { $addToSet: { "samples": newSample } },
       insertCallback
     );
