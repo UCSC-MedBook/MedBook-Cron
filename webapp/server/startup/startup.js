@@ -1,7 +1,7 @@
 Meteor.startup(function () {
   // // interlinked: uncomment and comment together
-  // generatePatients();
-  // generateSignatures();
+  generatePatients();
+  generateSignatures();
   generateCohortSignatures();
 
   generatePatientReports();

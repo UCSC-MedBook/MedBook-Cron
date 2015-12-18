@@ -56,6 +56,10 @@ generateCohortSignatures = function () {
           return first.value - second.value;
         });
 
+        newSignatureScore.training_set = 'no training set';
+        newSignatureScore.input_data_normalization = 'quantile_normalized_counts';
+        //console.log('cohort sig',newSignatureScore);
+        newSignatureScore.input_data_type = 'RNAseq';
         CohortSignatures.insert(newSignatureScore, insertCallback);
       });
 

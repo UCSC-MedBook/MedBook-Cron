@@ -55,10 +55,11 @@ generateSignatures = function () {
       }
 
       // is this referring to a gene?
-      if (genes.find({"gene": newSignature.label}).count() > 0) {
+      if (Genes.find({"gene": newSignature.label}).count() > 0) {
         newSignature.gene_label = newSignature.label;
       }
 
+      newSignature.training_set = 'no training set';
       Signatures.insert(newSignature, insertCallback);
     }
   }
