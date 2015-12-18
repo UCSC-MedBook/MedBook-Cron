@@ -1,5 +1,6 @@
 _ = lodash; // for findIndex
 
+CRFs = new Meteor.Collection("CRFs");
 generatePatientReports = function () {
   // remove all old patient reports (for now)
   PatientReports.remove({});
@@ -78,8 +79,8 @@ generatePatientReports = function () {
       var newSampleReport = newReport.samples[sampleIndex];
 
       // kind of last minute hacked together.
-      clinicalDocument = Clinical_Info.findOne(
-            {"Sample_ID": currentPrimarySample.sample_label}
+      clinicalDocument = CRFs.findOne(
+            {"CRF":"Clinical_Info", "Sample_ID": currentPrimarySample.sample_label}
           );
       if (clinicalDocument) {
         newSampleReport.abiraterone = clinicalDocument.Abiraterone;
