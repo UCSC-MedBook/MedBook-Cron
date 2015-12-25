@@ -40,8 +40,9 @@ generatePatients = function () {
   // actually do stuff
   //
 
-  Demographics.find().forEach(function (currentDocument) {
+  CRFs.find().forEach(function (currentDocument) {
     var newPatient = {
+      "CRF": "Demographics",
       "study_label": "WCDThardcoded",
       "study_id": "thisIsAHardcodedId",
       "samples": [],
@@ -60,7 +61,7 @@ generatePatients = function () {
   });
 
   // so that day_calculator can look up for dates
-  Demographics.find().forEach(function (currentDocument) {
+  CRFs.find({"CRF":"Demographics"}).forEach(function (currentDocument) {
     Patients.update(
       {"patient_label": currentDocument.Patient_ID},
       { $set: {
@@ -72,7 +73,7 @@ generatePatients = function () {
 
   console.log("done reading from Demographics");
 
-  SU2C_Biopsy_V3.find().forEach(function (currentDocument) {
+  CRFs.find({"CRF":"SU2C_Biopsy_V3"}).forEach(function (currentDocument) {
     var newSample = {
       "procedure_day": day_calculator(currentDocument.Date_of_Procedure, currentDocument),
     };

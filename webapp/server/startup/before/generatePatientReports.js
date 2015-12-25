@@ -78,8 +78,8 @@ generatePatientReports = function () {
       var newSampleReport = newReport.samples[sampleIndex];
 
       // kind of last minute hacked together.
-      clinicalDocument = Clinical_Info.findOne(
-            {"Sample_ID": currentPrimarySample.sample_label}
+      clinicalDocument = CRFs.findOne(
+            {"CRF":"Clinical_Info","Sample_ID": currentPrimarySample.sample_label}
           );
       if (clinicalDocument) {
         newSampleReport.abiraterone = clinicalDocument.Abiraterone;
@@ -89,8 +89,9 @@ generatePatientReports = function () {
         newSampleReport.prior_treatments = clinicalDocument.prior_txs;
       }
 
-      var histologyDoc = Histology_Research
+      var histologyDoc = CRFs
           .findOne({
+            "CRF":"Clinical_Info",
             "Sample_ID": currentPrimarySample.sample_label
           });
       if (histologyDoc) {
