@@ -1,5 +1,6 @@
 _ = lodash; // for findIndex
 
+CRFs = new Meteor.Collection("CRFs");
 generatePatientReports = function () {
   // remove all old patient reports (for now)
   PatientReports.remove({});
