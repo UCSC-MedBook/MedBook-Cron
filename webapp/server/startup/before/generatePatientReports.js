@@ -104,7 +104,7 @@ generatePatientReports = function () {
 				console.log("lookup ", mutation.gene_label, mutation.protein_change, 
 					mutation.functional_class, mutation.effect_impact);
 					if (mutation.protein_change) {
-						var variantDocList = Clinical_Evidence_Summary.find({
+						var variantDocList = ClinicalEvidenceSummaries.find({
 							"variant": mutation.protein_change,
 							"gene": mutation.gene_label
 							
