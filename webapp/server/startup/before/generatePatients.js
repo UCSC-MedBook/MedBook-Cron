@@ -40,13 +40,14 @@ generatePatients = function () {
   // actually do stuff
   //
 
-  CRFs.find().forEach(function (currentDocument) {
+  CRFs.find({"CRF": "Demographics"}).forEach(function (currentDocument) {
     var newPatient = {
       "CRF": "Demographics",
       "study_label": "WCDThardcoded",
       "study_id": "thisIsAHardcodedId",
       "samples": [],
     };
+    console.log('input', currentDocument)
     mapFields(newPatient, currentDocument, [
       ["age", "Age"],
       ["patient_label", "Patient_ID"],
