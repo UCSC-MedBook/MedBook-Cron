@@ -65,3 +65,7 @@ generateCohortSignatures = function () {
 
   console.log("done generating signature scores");
 };
+
+Moko.ensureIndex(signature_scores_old, {
+  name: 1
+});
